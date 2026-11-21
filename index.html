@@ -1,0 +1,1558 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#12161f">
+<title>Pathfinder — справочник на русском</title>
+<style>
+  :root {
+    --bg: #12161f;
+    --panel: #1a2029;
+    --panel2: #222a36;
+    --line: #2d3746;
+    --text: #e9edf4;
+    --body: #c3cbd9;
+    --muted: #8b98ab;
+    --accent: #8b7cf6;
+    --accent-soft: rgba(139, 124, 246, 0.14);
+    --accent2: #5f4fd1;
+    --link: #9fa8ff;
+    --arch: #34bb3e;            /* цвет особенностей архетипа (как ttg) */
+    --arch-soft: rgba(52, 187, 62, 0.12);
+    --arch-dim: #2a8f31;
+    --radius: 10px;
+    --shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg); color: var(--text);
+    display: flex; flex-direction: column; height: 100dvh;
+  }
+
+  /* ── Шапка ─────────────────────────────── */
+  header {
+    padding: 10px 20px; background: var(--panel);
+    border-bottom: 1px solid var(--line);
+    display: flex; gap: 12px; align-items: center;
+    box-shadow: var(--shadow); z-index: 5;
+  }
+  .logo {
+    font-size: 19px; font-weight: 700; letter-spacing: 0.3px;
+    color: var(--accent); text-decoration: none; white-space: nowrap;
+  }
+  #menuBtn {
+    display: none; font-size: 20px; line-height: 1;
+    background: transparent; color: var(--text);
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 6px 12px; cursor: pointer;
+  }
+  #headerPanel { display: flex; flex: 1; gap: 12px; align-items: center; flex-wrap: wrap; }
+  nav { display: flex; gap: 4px; background: var(--bg); border-radius: 8px; padding: 3px; }
+  nav button {
+    font: inherit; font-size: 14px; padding: 6px 14px; cursor: pointer;
+    background: transparent; color: var(--muted);
+    border: none; border-radius: 6px; transition: 0.15s;
+  }
+  nav button.active { background: var(--accent2); color: #fff; }
+  nav button:not(.active):hover { color: var(--text); }
+  #search {
+    flex: 1; min-width: 150px; max-width: 360px; margin-left: auto;
+    padding: 8px 14px; font: inherit; font-size: 16px; color: var(--text);
+    background: var(--panel2); border: 1px solid var(--line); border-radius: 8px;
+    outline: none; transition: border-color 0.15s;
+  }
+  #search:focus { border-color: var(--accent); }
+  #search::placeholder { color: var(--muted); }
+
+  /* ── Основная область ───────────────────── */
+  main { flex: 1; display: flex; overflow: hidden; }
+  #list {
+    width: 300px; min-width: 220px; overflow-y: auto;
+    background: var(--panel); border-right: 1px solid var(--line);
+  }
+  #list .item {
+    padding: 10px 16px; cursor: pointer; border-bottom: 1px solid var(--line);
+    display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+    border-left: 3px solid transparent; transition: 0.12s;
+  }
+  #list .item:hover { background: var(--panel2); }
+  #list .item.active { background: var(--accent-soft); border-left-color: var(--accent); }
+  #list .item .en { color: var(--muted); font-size: 12px; font-style: italic; white-space: nowrap; }
+
+  /* Домашние классы (Rabbit Hole) — всегда сверху, оранжевая подсветка */
+  #list .item.devil-item { border-left: 3px solid #ff7a18; }
+  #list .item.devil-item > span:first-child { color: #ff7a18; font-weight: 600; }
+  #list .item.devil-item.active { background: rgba(255, 122, 24, 0.14); border-left-color: #ff7a18; }
+  #list .item.devil-item .en { color: rgba(255, 122, 24, 0.6); }
+
+  /* ── Карточные списки (классы, расы) — как на ttg.club ── */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; padding: 14px; }
+  .card-grid .card {
+    display: block; cursor: pointer; text-align: left; font: inherit;
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 14px; transition: 0.15s; overflow: hidden;
+  }
+  .card-grid .card:hover { border-color: var(--accent); background: var(--panel2); transform: translateY(-2px); }
+  .card-grid .card.active { border-color: var(--accent); background: var(--accent-soft); }
+  .card-grid .card .card-ico {
+    width: 100%; height: 88px; border-radius: 8px; margin-bottom: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 36px;
+    background: linear-gradient(150deg, var(--panel2), var(--accent-soft));
+    overflow: hidden;
+  }
+  .card-grid .card .card-ico img { width: 100%; height: 100%; object-fit: cover; }
+  .card-grid .card .card-title { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+  .card-grid .card .card-title b { color: var(--text); font-size: 16px; }
+  .card-grid .card .card-title .en { color: var(--muted); font-size: 11.5px; font-style: italic; white-space: nowrap; }
+  .card-grid .card .card-desc { color: var(--muted); font-size: 13px; margin-top: 6px; line-height: 1.45; }
+  .card-grid .card.devil-card .card-ico { background: linear-gradient(150deg, var(--panel2), rgba(255, 122, 24, 0.2)); }
+  .card-grid .card.devil-card .card-title b { color: #ff7a18; }
+  #detail { flex: 1; overflow-y: auto; padding: 26px 34px; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
+  #detail .content { max-width: 78ch; margin: 0 auto; }
+
+  h2 { color: var(--text); font-size: 26px; font-weight: 700; margin-bottom: 2px; }
+  .en-name { color: var(--muted); font-style: italic; margin-bottom: 16px; }
+  .kind-badge {
+    display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--accent); background: var(--accent-soft);
+    border-radius: 20px; padding: 3px 10px; margin-left: 10px; vertical-align: 4px;
+  }
+  .meta {
+    display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px;
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 14px 18px; margin-bottom: 18px;
+  }
+  .meta dt { color: var(--muted); white-space: nowrap; font-size: 14px; }
+  .meta dd { color: var(--text); }
+  h3 { color: var(--accent); font-size: 17px; font-weight: 600; margin: 24px 0 10px; }
+  .h3-row { display: flex; align-items: baseline; gap: 12px; }
+  .h3-row h3 { margin: 24px 0 10px; }
+  p { margin: 8px 0; color: var(--body); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    background: var(--panel2); border: 1px solid var(--line);
+    border-radius: 16px; padding: 3px 12px; font-size: 13px; color: var(--body);
+  }
+
+  /* ── Таблицы ────────────────────────────── */
+  .table-wrap { overflow-x: auto; margin: 8px 0; border-radius: var(--radius); border: 1px solid var(--line); }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); padding: 6px 10px; text-align: center; }
+  th:last-child, td:last-child { border-right: none; }
+  tr:last-child td { border-bottom: none; }
+  th { background: var(--panel2); color: var(--accent); font-weight: 600; white-space: nowrap; position: sticky; top: 0; }
+  td.left { text-align: left; }
+  td.spell-col { min-width: 34px; padding: 6px 6px; color: var(--body); }
+  td.spell-col.zero { color: var(--muted); opacity: 0.55; }
+  thead .group { border-bottom: none; color: var(--muted); font-weight: 500; font-size: 12px; }
+  thead .circle { border-top: none; padding: 2px 6px; font-size: 12px; }
+  tbody tr:nth-child(even) td { background: rgba(255, 255, 255, 0.02); }
+
+  /* Столбец уровня всегда на виду при горизонтальном скролле */
+  .table-wrap th:first-child {
+    position: sticky; left: 0; z-index: 3;
+    background: var(--panel2);
+  }
+  .table-wrap tbody td:first-child {
+    position: sticky; left: 0; z-index: 2;
+    background: var(--panel);
+    font-weight: 600; color: var(--text);
+  }
+  .table-wrap tbody tr:nth-child(even) td:first-child { background: #202937; }
+
+  /* Подсветка выбранной строки (уровень + модификаторы при скролле) */
+  .table-wrap tbody tr.row-hl td { background: rgba(139, 124, 246, 0.16); }
+  .table-wrap tbody tr.row-hl td:first-child { background: rgba(139, 124, 246, 0.22); color: var(--accent); }
+
+  /* Класс «Дьявол»: контрастная оранжевая тема карточки */
+  .content.devil {
+    --accent: #ff7a18;
+    --accent-soft: rgba(255, 122, 24, 0.14);
+    --accent2: #b35708;
+    --link: #ffb066;
+  }
+  .content.devil .table-wrap tbody tr.row-hl td { background: rgba(255, 122, 24, 0.16); }
+  .content.devil .table-wrap tbody tr.row-hl td:first-child { background: rgba(255, 122, 24, 0.22); }
+  .content.devil .class-photo { border-color: var(--accent2); box-shadow: 0 0 0 2px var(--accent-soft), var(--shadow); }
+
+  /* Якорные ссылки на особенности в таблице */
+  td.left a.feat-link { color: var(--link); text-decoration: none; border-bottom: 1px dotted var(--link); cursor: pointer; }
+  td.left a.feat-link:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  td.left a.feat-link.arch-link { color: var(--arch); border-bottom-color: var(--arch); }
+  td.left a.feat-link.arch-link:hover { color: #4ee058; border-bottom-color: #4ee058; }
+
+  /* ── Фото класса ───────────────────────── */
+  .class-photo {
+    float: right; width: 220px; max-width: 40%; margin: 4px 0 12px 18px;
+    border-radius: var(--radius); border: 1px solid var(--line);
+    box-shadow: var(--shadow); object-fit: cover;
+  }
+  @media (max-width: 760px) { .class-photo { float: none; display: block; width: 100%; max-width: 320px; margin: 10px auto; } }
+  td.left .sep { color: var(--muted); margin: 0 2px; }
+
+  /* ── Особенности: карточки, развёрнуты по умолчанию ── */
+  details.feat {
+    margin: 8px 0; background: var(--panel); border: 1px solid var(--line);
+    border-radius: var(--radius); overflow: hidden;
+  }
+  details.feat summary {
+    cursor: pointer; color: var(--text); font-weight: 500; padding: 10px 16px;
+    list-style: none; display: flex; align-items: center; gap: 8px; user-select: none;
+  }
+  details.feat summary::-webkit-details-marker { display: none; }
+  details.feat summary::before { content: '▾'; color: var(--muted); font-size: 12px; transition: 0.15s; }
+  details.feat:not([open]) summary::before { transform: rotate(-90deg); }
+  details.feat summary:hover { background: var(--panel2); }
+  details.feat > p { padding: 4px 16px 14px; margin: 0; white-space: pre-line; }
+  details.feat:target { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+
+  /* Дробные бонусы (как на pathfinder.family) */
+  .frac-toggle {
+    display: inline-block; font: inherit; font-size: 12.5px; cursor: pointer;
+    background: transparent; color: var(--link); border: none; padding: 0;
+    border-bottom: 1px dashed var(--link);
+  }
+  .frac { display: none; color: var(--muted); }
+  .table-wrap.show-frac .frac { display: inline; }
+
+  /* Особенность, изменённая архетипом — зелёное выделение */
+  details.feat.arch-feat { border-color: var(--arch-dim); background: linear-gradient(160deg, var(--panel), var(--arch-soft)); }
+  details.feat.arch-feat summary { color: var(--arch); }
+  details.feat.arch-feat summary::before { color: var(--arch); }
+  .arch-badge {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+    color: var(--arch); background: var(--arch-soft);
+    border: 1px solid var(--arch-dim); border-radius: 12px;
+    padding: 1px 8px; margin-left: auto; white-space: nowrap;
+  }
+  details.feat .orig {
+    margin: 0 16px 12px; padding: 8px 12px;
+    border-left: 3px solid var(--line); color: var(--muted); font-size: 14px;
+  }
+  details.feat .orig summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+  details.feat .orig p { color: var(--muted); padding: 4px 0 0; white-space: pre-line; }
+
+  /* ── Блок выбора архетипа ───────────────── */
+  .arch-section {
+    background: linear-gradient(160deg, var(--panel), var(--panel2));
+    border: 1px solid var(--accent2); border-radius: var(--radius);
+    padding: 16px 18px; margin: 22px 0; box-shadow: var(--shadow);
+  }
+  .arch-section h3 { margin: 0 0 4px; }
+  .arch-section .hint { color: var(--muted); font-size: 13.5px; margin: 0 0 12px; }
+  .arch-select {
+    width: 100%; max-width: 460px; font: inherit; font-size: 16px; color: var(--text);
+    background: var(--bg); border: 1px solid var(--accent2); border-radius: 8px;
+    padding: 9px 12px; outline: none; cursor: pointer;
+  }
+  .arch-select:focus { border-color: var(--accent); }
+  .arch-note {
+    border-left: 3px solid var(--accent); padding: 8px 14px; margin: 10px 0;
+    color: var(--body); background: var(--accent-soft); border-radius: 0 8px 8px 0;
+  }
+  .legend { display: flex; gap: 14px; margin-top: 10px; font-size: 13px; color: var(--muted); flex-wrap: wrap; }
+  .legend .arch-chip { color: var(--arch); }
+
+  .toggle-feats {
+    font: inherit; font-size: 13px; cursor: pointer; color: var(--muted);
+    background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+    padding: 3px 12px; transition: 0.15s;
+  }
+  .toggle-feats:hover { color: var(--text); border-color: var(--accent); }
+
+  .req b, .fav b { color: var(--accent); font-weight: 600; }
+  .req, .fav { margin: 6px 0; }
+  .race-trait-related { color: var(--muted); font-size: 13px; font-style: italic; margin: 0 16px; padding: 0; }
+
+  /* ── Чтение правил: формулы, термины, перекрёстные ссылки ── */
+  .formula {
+    display: block; font-family: ui-monospace, 'Cascadia Code', Consolas, monospace;
+    font-size: 14px; white-space: pre-wrap;
+    background: var(--panel); border: 1px solid var(--line); border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 10px 0; color: var(--text);
+  }
+  .formula.inline {
+    display: inline; padding: 1px 7px; margin: 0; white-space: normal;
+    border: 1px solid var(--accent2); border-radius: 6px;
+    background: var(--accent-soft); font-size: 13.5px;
+  }
+  code.dice {
+    font-family: ui-monospace, Consolas, monospace; font-size: 14px;
+    background: var(--panel2); border: 1px solid var(--line);
+    border-radius: 5px; padding: 1px 6px; color: var(--accent); white-space: nowrap;
+  }
+  .term {
+    color: var(--link); cursor: help; position: relative;
+    border-bottom: 1px dotted var(--link); text-decoration: none;
+  }
+  .term::after {
+    content: attr(data-tip);
+    display: none; position: absolute; bottom: 130%; left: 0; z-index: 20;
+    width: max-content; max-width: 280px; white-space: normal;
+    background: var(--panel2); border: 1px solid var(--accent2); border-radius: 8px;
+    box-shadow: var(--shadow); color: var(--text); font-size: 13px; font-weight: normal;
+    padding: 8px 12px; line-height: 1.45; text-align: left;
+  }
+  .term:hover::after, .term.term-open::after, .term:focus::after { display: block; }
+  a.rule-link { color: var(--link); text-decoration: none; border-bottom: 1px dotted var(--link); }
+  a.rule-link:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  .rule-intro p { font-size: 16.5px; }
+
+  /* ── Карточка расы: фото/заглушка + ключевые параметры ── */
+  .race-photo {
+    float: right; width: 180px; height: 200px; max-width: 40%;
+    margin: 4px 0 12px 18px; border-radius: var(--radius);
+    border: 1px solid var(--line); box-shadow: var(--shadow);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 64px;
+    background: linear-gradient(150deg, var(--panel2), var(--accent-soft));
+    color: var(--muted); overflow: hidden;
+  }
+  .race-photo img { width: 100%; height: 100%; object-fit: cover; }
+  .quick-facts {
+    display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 18px;
+  }
+  .quick-facts .qf {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 20px; padding: 6px 14px; font-size: 14px; color: var(--text);
+  }
+  .quick-facts .qf.ability { color: var(--accent); border-color: var(--accent2); background: var(--accent-soft); font-weight: 600; }
+  .quick-facts .qf .lbl { color: var(--muted); font-size: 12px; margin-right: 6px; }
+  .quick-facts .qf.ability .lbl { color: var(--accent); opacity: 0.75; }
+  .back-link { display: none; margin-bottom: 12px; cursor: pointer; color: var(--link); font-size: 15px; font-weight: 500; }
+  .empty { color: var(--muted); font-style: italic; padding: 40px; text-align: center; }
+  a { color: var(--link); }
+  footer { padding: 6px 20px; color: var(--muted); font-size: 12px; border-top: 1px solid var(--line); background: var(--panel); }
+
+  /* ── Главная страница ───────────────────── */
+  main.home-view #list { display: none; }
+  .home { max-width: 860px; margin: 0 auto; padding-bottom: 60px; }
+  .home .hero {
+    text-align: center; padding: 40px 24px 34px; margin-top: 16px;
+    border-radius: 16px; border: 1px solid var(--line);
+    background:
+      radial-gradient(600px 240px at 50% -40px, var(--accent-soft), transparent 70%),
+      linear-gradient(160deg, var(--panel), var(--panel2));
+  }
+  .home .hero h2 { font-size: 34px; margin-bottom: 10px; }
+  .home .hero p { color: var(--body); max-width: 56ch; margin: 0 auto; }
+  .home .hero .lead { font-size: 18px; margin-bottom: 6px; color: var(--text); }
+  .home-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; margin: 26px 0; }
+  .home-card {
+    display: block; text-decoration: none; color: var(--text);
+    background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 18px 18px 14px; transition: 0.15s;
+  }
+  .home-card:hover { border-color: var(--accent); background: var(--panel2); transform: translateY(-2px); box-shadow: var(--shadow); }
+  .home-card .ico { font-size: 28px; display: block; margin-bottom: 8px; }
+  .home-card b { display: block; font-size: 17px; margin-bottom: 4px; }
+  .home-card span.desc { color: var(--muted); font-size: 14px; }
+  .home-card .count { color: var(--accent); font-size: 13px; margin-top: 8px; display: block; }
+  .home h3 { margin-top: 30px; }
+  .home .steps { list-style: none; counter-reset: step; }
+  .home .steps li {
+    counter-increment: step; position: relative;
+    padding: 10px 0 10px 46px; color: var(--body); border-bottom: 1px solid var(--line);
+  }
+  .home .steps li::before {
+    content: counter(step); position: absolute; left: 0; top: 10px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--accent-soft); color: var(--accent);
+    font-weight: 700; display: flex; align-items: center; justify-content: center;
+  }
+  .home details.faq { margin: 8px 0; }
+  .home details.faq summary { cursor: pointer; padding: 10px 16px; color: var(--text); font-weight: 500; }
+  .home details.faq p { padding: 0 16px 12px; }
+  .home .cta {
+    display: inline-block; margin-top: 8px; padding: 10px 22px; border-radius: 24px;
+    background: var(--accent2); color: #fff; text-decoration: none; font-weight: 600;
+  }
+  .home .cta:hover { background: var(--accent); }
+  .home .cta.ghost {
+    background: transparent; color: var(--link);
+    border: 1px solid var(--accent2); font-weight: 500;
+  }
+  .home .cta.ghost:hover { background: var(--accent-soft); }
+  #stepsJump { margin-left: 8px; font: inherit; font-size: 15px; cursor: pointer; }
+
+  /* ── Мобильная версия ───────────────────── */
+  @media (max-width: 760px) {
+    header { padding: 8px 10px; gap: 8px; position: relative; }
+    .logo { font-size: 16px; flex-shrink: 0; }
+    #menuBtn { display: block; margin-left: auto; } /* кнопка справа */
+    /* Панель навигации складная: скрыта, открывается кнопкой ☰ */
+    #headerPanel {
+      display: none; position: absolute; top: 100%; left: 0; right: 0;
+      flex-direction: column; align-items: stretch; gap: 10px;
+      padding: 12px; background: var(--panel);
+      border-bottom: 1px solid var(--line); box-shadow: var(--shadow);
+      z-index: 10;
+    }
+    header.menu-open #headerPanel { display: flex; }
+    nav { display: flex; flex-wrap: wrap; gap: 6px; }
+    nav button { font-size: 14px; padding: 8px 12px; background: var(--panel2); border-radius: 8px; }
+    #search { max-width: none; width: 100%; padding: 8px 12px; font-size: 15px; }
+    main { position: relative; }
+    .race-photo { float: none; width: 140px; height: 160px; margin: 6px auto 14px; }
+    .quick-facts .qf { font-size: 13px; padding: 5px 11px; }
+    #list { width: 100%; border-right: none; }
+    #detail { position: absolute; inset: 0; padding: 16px 14px 40px; background: var(--bg); display: none; }
+    main.show-detail #list { display: none; }
+    main.show-detail #detail { display: block; }
+    .back-link { display: inline-block; }
+    #detail .content { max-width: none; }
+    h2 { font-size: 22px; }
+    .meta { grid-template-columns: 1fr; gap: 2px; padding: 12px 14px; }
+    .meta dt { margin-top: 8px; }
+    .meta dt:first-child { margin-top: 0; }
+    .arch-section { padding: 12px 14px; }
+
+    /* Главная на мобильном: список скрыт, карточку ничто не перекрывает */
+    main.home-view #detail { display: block; position: static; }
+    .home .hero { padding: 22px 14px 18px; }
+    .home .hero h2 { font-size: 25px; }
+    .home .hero .lead { font-size: 16px; }
+    .home .hero p { font-size: 15px; }
+    .home-cards { grid-template-columns: 1fr 1fr; gap: 10px; margin: 18px 0; }
+    .home-card { padding: 14px 12px 12px; }
+    .home-card .ico { font-size: 24px; margin-bottom: 4px; }
+    .home-card b { font-size: 15px; }
+    .home-card span.desc { font-size: 12.5px; }
+    .home-card .count { font-size: 12px; margin-top: 6px; }
+    .home .steps li { padding: 8px 0 8px 42px; font-size: 15px; }
+    .home .cta { display: block; text-align: center; padding: 12px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <a class="logo" href="#/">Pathfinder</a>
+  <button id="menuBtn" aria-label="Меню" aria-expanded="false">☰</button>
+  <div id="headerPanel">
+    <nav>
+      <button data-cat="home">Главная</button>
+      <button data-cat="classes" class="active">Классы</button>
+      <button data-cat="prestige">Престижи</button>
+      <button data-cat="npc">NPC</button>
+      <button data-cat="races">Расы</button>
+      <button data-cat="traits">Штрихи</button>
+      <button data-cat="skills">Навыки</button>
+      <button data-cat="rules">Правила</button>
+    </nav>
+    <input id="search" type="search" placeholder="Поиск по названию…">
+  </div>
+</header>
+<main id="main">
+  <div id="list"></div>
+  <div id="detail"><div class="empty">Выберите класс слева</div></div>
+</main>
+<footer>Данные: pathfinder.family · сборка <span id="gen"></span></footer>
+
+<script>
+'use strict';
+
+// ── Ленивая загрузка данных ───────────────
+// Файлы данных (~25 МБ суммарно, archetypes.js — 21 МБ) не грузятся
+// при открытии сайта: каждый раздел подгружается при первом переходе,
+// архетипы — только при открытии карточки класса.
+var DATA_FILES = {
+  classes:  ['data/classes.js'],
+  prestige: ['data/prestige.js', 'data/devil.js'], // devil.js добавляет «Дьявола» в престижи
+  npc:      ['data/npc.js'],
+  traits:   ['data/traits.js'],
+  skills:   ['data/skills.js'],
+  races:    ['data/races.js'],
+  rules:    ['data/rules.js'],
+  // devil.js ещё раз в конце — идемпотентен; до грузит подклассы,
+  // если archetypes.js загрузился после первого прогона devil.js
+  archetypes: ['data/archetypes.js', 'data/devil.js']
+};
+var loadedCats = {}; // cat → true (данные уже в ALL)
+
+// Все записи классов/престижей/NPC/рас — наполняется лениво
+var ALL = [];
+
+// Подключение бандла категории: склеиваем записи в ALL
+function registerBundle(cat) {
+  var bundle = window['PF_DATA_' + cat];
+  if (!bundle) return;
+  document.getElementById('gen').textContent = bundle.meta.generatedAt;
+  bundle[cat].forEach(function (item) {
+    if (item._cat) return; // уже добавлен (защита от повтора)
+    item._cat = cat;
+    ALL.push(item);
+  });
+}
+
+// Загружает данные категории (скрипты по очереди), затем cb.
+// Уже загруженное — сразу cb.
+function ensureData(cat, cb) {
+  if (cat !== 'archetypes' && loadedCats[cat]) { if (cb) cb(); return; }
+  if (cat === 'archetypes' && window.PF_DATA_archetypes) { if (cb) cb(); return; }
+
+  var files = DATA_FILES[cat] || [];
+  var i = 0;
+  (function next() {
+    if (i >= files.length) {
+      if (cat !== 'archetypes') {
+        loadedCats[cat] = true;
+        registerBundle(cat);
+        // Главная: обновляем счётчики без перерисовки (скролл не сбрасываем)
+        updateHomeCounts();
+      } else {
+        buildArchIndex();
+      }
+      if (cb) cb();
+      return;
+    }
+    var s = document.createElement('script');
+    // Локальная разработка: без кэша. На Pages кэш и так 10 минут.
+    s.src = files[i++] + (location.port ? '?t=' + Date.now() : '');
+    s.onload = next;
+    s.onerror = function () {
+      console.error('Не удалось загрузить ' + s.src);
+      if (cb) cb();
+    };
+    document.head.appendChild(s);
+  })();
+}
+
+// Архетипы: плоский список + индекс по родительскому классу
+var ARCHETYPES = [];
+var ARCH_BY_CLASS = {};
+function buildArchIndex() {
+  ARCHETYPES = (window.PF_DATA_archetypes && window.PF_DATA_archetypes.archetypes) || [];
+  // Подклассы «Дьявола», если devil.js выполнился до загрузки archetypes.js
+  (window.PF_DATA_custom_subclasses || []).forEach(function (s) {
+    var has = ARCHETYPES.some(function (a) { return a.slug === s.slug; });
+    if (!has) ARCHETYPES.push(s);
+  });
+  ARCH_BY_CLASS = {};
+  ARCHETYPES.forEach(function (a) {
+    if (!a.classSlug) return;
+    (ARCH_BY_CLASS[a.classSlug] = ARCH_BY_CLASS[a.classSlug] || []).push(a);
+  });
+}
+
+var state = { cat: 'classes', query: '', slug: null, arch: 'none' };
+
+// ── Роутинг по hash: #/, #/classes, #/classes/wizard, #/classes/wizard/arch-slug ──
+var CATS = { classes: 1, prestige: 1, npc: 1, traits: 1, skills: 1, races: 1, rules: 1 };
+
+function applyHash() {
+  var parts = (location.hash || '').replace(/^#\/?/, '').split('/').filter(Boolean);
+  var cat = CATS[parts[0]] ? parts[0] : 'home';
+  var slug = parts[1] || null;
+  var arch = parts[2] || 'none';
+
+  // Некорректный hash — на главную
+  if (cat === 'home' && parts.length) { location.replace('#/'); return; }
+
+  state.cat = cat; state.slug = slug; state.arch = arch;
+  syncUI();
+  // Мобильный: прямая ссылка на карточку — открываем карточку, не список
+  if (slug && isMobile()) mainEl.classList.add('show-detail');
+
+  // Данные раздела догружаем после отрисовки: список покажет
+  // «Загрузка…», затем перерисуется (данные пришли)
+  if (cat !== 'home') {
+    ensureData(cat, function () {
+      // slug мог стать валидным только теперь — перепроверяем редирект
+      if (state.slug && !ALL.some(function (x) { return x.slug === state.slug && x._cat === state.cat; })) {
+        location.replace('#/' + state.cat);
+        return;
+      }
+      syncUI();
+    });
+  }
+}
+
+function updateHash() {
+  var h = '#/' + (state.cat === 'home' ? '' : state.cat);
+  if (state.slug) h += '/' + state.slug;
+  if (state.slug && state.arch !== 'none') h += '/' + state.arch;
+  if (h !== location.hash) location.hash = h; // порождает hashchange → applyHash
+}
+
+// Приводим шапку/список/карточку в соответствие state (после hash-навигации)
+function syncUI() {
+  document.querySelectorAll('nav button').forEach(function (b) {
+    b.classList.toggle('active', b.dataset.cat === state.cat);
+  });
+  mainEl.classList.toggle('home-view', state.cat === 'home');
+  if (isMobile() && state.cat === 'home') mainEl.classList.remove('show-detail');
+  searchEl.value = state.query = '';
+  renderList(); renderDetail();
+}
+
+window.addEventListener('hashchange', applyHash);
+
+var mainEl = document.getElementById('main');
+var listEl = document.getElementById('list');
+var detailEl = document.getElementById('detail');
+var searchEl = document.getElementById('search');
+
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function norm(s) { return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim(); }
+function isMobile() { return window.matchMedia('(max-width: 760px)').matches; }
+
+// Текущий архетип (или null)
+function currentArch() {
+  if (state.arch === 'none' || !state.slug) return null;
+  var arches = ARCH_BY_CLASS[state.slug] || [];
+  for (var i = 0; i < arches.length; i++) if (arches[i].slug === state.arch) return arches[i];
+  return null;
+}
+
+function visible() {
+  var q = state.query.trim().toLowerCase();
+  return ALL.filter(function (it) {
+    if (it._cat !== state.cat) return false;
+    if (!q) return true;
+    return (it.nameRu || '').toLowerCase().indexOf(q) >= 0 ||
+           (it.nameEn || '').toLowerCase().indexOf(q) >= 0;
+  });
+}
+
+// Разделы, списки которых показываются карточками (как на ttg.club)
+var CARD_CATS = { classes: '⚔️', prestige: '🌟', npc: '🎭', races: '🧝', rules: '📖' };
+
+// Короткое описание для карточки: первая фраза поля
+function shortDesc(text, maxLen) {
+  if (!text) return '';
+  var s = String(text).replace(/\s+/g, ' ').trim();
+  var dot = s.search(/[.!?](\s|$)/);
+  if (dot > 0) s = s.slice(0, dot + 1);
+  if (s.length > (maxLen || 140)) s = s.slice(0, (maxLen || 140) - 1).trim() + '…';
+  return s;
+}
+
+function renderList() {
+  // Данные раздела ещё грузятся (ленивая загрузка)
+  if (state.cat !== 'home' && !loadedCats[state.cat]) {
+    listEl.innerHTML = '<div class="empty" style="padding:20px">Загрузка данных…</div>';
+    return;
+  }
+  var items = visible();
+  // Домашние классы (Rabbit Hole) — всегда первыми в списке
+  items.sort(function (a, b) { return (b.devilTheme ? 1 : 0) - (a.devilTheme ? 1 : 0); });
+
+  // Карточная сетка для классов/престижей/NPC/рас: иконка/фото + описание
+  if (CARD_CATS[state.cat]) {
+    var html = items.map(function (it) {
+      var cls = 'card' + (it.devilTheme ? ' devil-card' : '') + (it.slug === state.slug ? ' active' : '');
+      var ico = it.image
+        ? '<img src="' + esc(it.image) + '" alt="' + esc(it.nameRu) + '" loading="lazy" decoding="async">'
+        : esc(CARD_CATS[state.cat]);
+      var desc = shortDesc(it.role || it.description ||
+        // правила: первое осмысленное предложение статьи
+        (it.sections || []).map(function (s) { return s.text; }).find(Boolean) || '', 110);
+      return '<button class="' + cls + '" data-slug="' + esc(it.slug) + '">' +
+        '<span class="card-ico">' + ico + '</span>' +
+        '<span class="card-title"><b>' + esc(it.nameRu) + '</b>' +
+        '<span class="en">' + esc(it.nameEn || '') + '</span></span>' +
+        (desc ? '<span class="card-desc">' + esc(desc) + '</span>' : '') +
+        '</button>';
+    }).join('');
+    listEl.innerHTML = html
+      ? '<div class="card-grid">' + html + '</div>'
+      : '<div class="empty" style="padding:20px">Ничего не найдено</div>';
+    return;
+  }
+
+  var html2 = items.map(function (it) {
+    var cls = 'item' + (it.slug === state.slug ? ' active' : '');
+    return '<div class="' + cls + '" data-slug="' + esc(it.slug) + '">' +
+      '<span>' + esc(it.nameRu) + '</span>' +
+      '<span class="en">' + esc(it.nameEn || '') + '</span></div>';
+  }).join('');
+  listEl.innerHTML = html2 || '<div class="empty" style="padding:20px">Ничего не найдено</div>';
+}
+
+function metaRow(label, value) {
+  if (!value) return '';
+  return '<dt>' + esc(label) + '</dt><dd>' + esc(value) + '</dd>';
+}
+
+// ── Таблица прогрессии ────────────────────────────────────
+// Заклинания — отдельная колонка на каждый круг (0, 1, 2…),
+// как на ttg.club. Особенности в «Прочее» — якорные ссылки
+// на описания ниже; изменённые архетипом — зелёные.
+
+function featAnchors(special) {
+  // Ячейка «Прочее» — список через запятую. Связываем каждый элемент
+  // с особенностью по имени (регистронезависимо, точное совпадение
+  // или имя-префикс: «Атака исподтишка +1d6» → «Атака исподтишка»).
+  var feats = window.__featIds || [];
+  if (!special) return '';
+
+  var byNorm = {};
+  feats.forEach(function (f) { byNorm[norm(f.name)] = f; });
+
+  return special.split(',').map(function (part) {
+    var p = part.trim();
+    if (!p) return '';
+
+    var best = null;
+    Object.keys(byNorm).forEach(function (n) {
+      if (p.toLowerCase().indexOf(n) === 0 && (!best || n.length > best.length)) best = n;
+    });
+
+    if (!best) return esc(p);
+    var f = byNorm[best];
+    var cls = 'feat-link' + (f.changed ? ' arch-link' : '');
+    var rest = p.slice(best.length);
+    return '<a class="' + cls + '" href="#' + f.id + '">' + esc(p.slice(0, best.length)) + '</a>' + esc(rest);
+  }).filter(Boolean).join('<span class="sep">,</span> ');
+}
+
+// Бонус вида «+0,75» или составной «+6,75/+1,75» (несколько атак):
+// дробные суффиксы скрываются и показываются кнопкой «показать
+// дробные бонусы» — как на pathfinder.family.
+function bonusCell(v) {
+  return String(v || '').split('/').map(function (p) {
+    var m = /^\s*(\+\d+)(,\d+)?\s*$/.exec(p);
+    if (!m) return esc(p.trim());
+    return esc(m[1]) + (m[2] ? '<span class="frac">' + esc(m[2]) + '</span>' : '');
+  }).join('/');
+}
+
+function progressionTable(progression, circles, extraHeader, archByLvl) {
+  if (!progression || !progression.length) return '';
+  var hasSpells = progression.some(function (r) { return (r.spells && r.spells.length) || r.spellcasting; });
+  var hasFrac = progression.some(function (r) {
+    return [r.bab, r.fort, r.ref, r.will].some(function (v) { return /,\d+$/.test(v || ''); });
+  });
+  var hasExtra = progression.some(function (r) { return r.extra; });
+
+  // Сколько колонок кругов: максимум по строкам
+  var maxSpells = 0;
+  progression.forEach(function (r) {
+    if (r.spells && r.spells.length > maxSpells) maxSpells = r.spells.length;
+  });
+
+  var h = '<div class="table-wrap"><table><thead>';
+  h += '<tr><th rowspan="2">Ур.</th><th rowspan="2">БМА</th><th rowspan="2">Стойк.</th>' +
+    '<th rowspan="2">Реакц.</th><th rowspan="2">Воля</th><th rowspan="2">Прочее</th>';
+  if (hasExtra) h += '<th rowspan="2">' + esc(extraHeader || 'Доп.') + '</th>';
+  if (hasSpells) h += '<th colspan="' + Math.max(maxSpells, 1) + '" class="group">Заклинания в день (по кругам)</th>';
+  h += '</tr><tr>';
+  if (hasSpells) {
+    for (var c = 0; c < maxSpells; c++) {
+      // Номер круга из шапки источника (у паладина/следопыта с 1)
+      h += '<th class="circle">' + (circles && circles[c] !== undefined ? circles[c] : c) + '</th>';
+    }
+  }
+  h += '</tr></thead><tbody>';
+
+  progression.forEach(function (r) {
+    // Способности архетипа, приходящие на этом уровне, — зелёными
+    // якорями в «Прочее» (переносят к карточке способности)
+    var cell = featAnchors(r.special);
+    var lvlFeats = archByLvl && archByLvl[r.level];
+    if (lvlFeats) {
+      var links = lvlFeats.map(function (f) {
+        return '<a class="feat-link arch-link" href="#' + f.id + '">' + esc(f.name) + '</a>';
+      }).join('<span class="sep"> · </span>');
+      if (links) cell += (cell ? '<span class="sep"> · </span>' : '') + links;
+    }
+    h += '<tr data-level="' + r.level + '"><td>' + r.level + '</td><td>' + bonusCell(r.bab) + '</td><td>' + bonusCell(r.fort) +
+      '</td><td>' + bonusCell(r.ref) + '</td><td>' + bonusCell(r.will) + '</td>' +
+      '<td class="left">' + cell + '</td>';
+    if (hasExtra) h += '<td class="left">' + esc(r.extra || '') + '</td>';
+
+    if (hasSpells) {
+      if (r.spellcasting) {
+        h += '<td colspan="' + Math.max(maxSpells, 1) + '" class="left">' + esc(r.spellcasting) + '</td>';
+      } else if (r.spells) {
+        for (var j = 0; j < maxSpells; j++) {
+          var n = r.spells[j];
+          if (n === undefined || n === '') h += '<td class="spell-col zero"></td>';
+          else h += '<td class="spell-col">' + esc(n) + '</td>'; // «3», «1+1» (база + домен)
+        }
+      } else {
+        for (var k = 0; k < maxSpells; k++) h += '<td class="spell-col zero"></td>';
+      }
+    }
+    h += '</tr>';
+  });
+
+  h += '</tbody></table></div>';
+  if (hasFrac) {
+    h += '<p><button type="button" class="frac-toggle">показать дробные бонусы</button></p>';
+  }
+  return h;
+}
+
+// ── Особенности класса с учётом архетипа ──────────────────
+// Развёрнуты по умолчанию; изменённые архетипом — зелёные,
+// с версией архетипа и свёрнутым оригиналом внутри (как ttg).
+
+// Уровень каждой особенности класса: первый уровень в таблице,
+// где имя особенности встречается в колонке «Прочее».
+// Уточнения в скобках игнорируются: «Аура (Экс)» ≈ «аура».
+function computeFeatLevels(features, progression) {
+  var map = {};
+  if (!features || !progression) return map;
+  var cores = features.map(function (f) {
+    return { key: norm(f.name), core: norm(f.name).replace(/\s*\([^)]*\)\s*$/, '') };
+  });
+  progression.forEach(function (r) {
+    if (!r.special) return;
+    var parts = r.special.split(',').map(function (p) { return norm(p); });
+    parts.forEach(function (p) {
+      if (!p) return;
+      cores.forEach(function (c) {
+        // «атака исподтишка +1d6» начинается с имени особенности
+        if (map[c.key] === undefined && c.core && p.indexOf(c.core) === 0) map[c.key] = r.level;
+      });
+    });
+  });
+  return map;
+}
+
+function featuresBlock(features, arch, featLevel) {
+  if (!features || !features.length) return '';
+  var changedMap = {};
+  var added = [];
+  var classNorms = {};
+  features.forEach(function (f) { classNorms[norm(f.name)] = true; });
+
+  if (arch && arch.changes) {
+    arch.changes.forEach(function (c) {
+      changedMap[norm(c.name)] = c;
+      if (!classNorms[norm(c.name)]) added.push(c); // новая особенность, не замена
+    });
+  }
+  window.__changedMap = changedMap;
+
+  // Реестр якорей для таблицы
+  var ids = [];
+  var h = '';
+
+  features.forEach(function (f, i) {
+    var id = 'feat-' + i;
+    var change = changedMap[norm(f.name)];
+    ids.push({ name: f.name, id: id, changed: !!change });
+
+    h += '<details class="feat' + (change ? ' arch-feat' : '') + '" id="' + id + '" open>' +
+      '<summary>' + esc(f.name) +
+      (change ? '<span class="arch-badge">архетип</span>' : '') +
+      '</summary>';
+    if (change) {
+      h += '<p>' + esc(change.description) + '</p>' +
+        '<details class="orig"><summary>оригинал класса</summary><p>' + esc(f.description) + '</p></details>';
+    } else {
+      h += '<p>' + esc(f.description) + '</p>';
+    }
+    h += '</details>';
+  });
+
+  // Особенности, добавленные архетипом: вставляем в список по уровню
+  // получения (как на ttg) — после последней особенности класса,
+  // приходящей не позже. Без известного уровня — в конец.
+  var inserts = []; // {afterIdx, feat}
+  added.forEach(function (c) {
+    var lvl = c.level || 0;
+    if (!lvl && c.replaces && c.replaces.length) {
+      // уровень заменяемой особенности из таблицы
+      c.replaces.forEach(function (r) {
+        var l = featLevel[norm(r)];
+        if (l && (!lvl || l < lvl)) lvl = l;
+      });
+    }
+    inserts.push({ feat: c, lvl: lvl });
+  });
+
+  // Вставляем по убыванию уровня: каждая новая карточка встаёт сразу
+  // после якоря, поэтому в итоге группа оказывается по возрастанию.
+  inserts.sort(function (a, b) { return b.lvl - a.lvl; });
+  inserts.forEach(function (ins, insIdx) {
+    var id = 'feat-add-' + insIdx;
+    ids.push({ name: ins.feat.name, id: id, changed: true });
+
+    var html = '<details class="feat arch-feat" id="' + id + '" open>' +
+      '<summary>' + esc(ins.feat.name) + '<span class="arch-badge">архетип</span></summary>' +
+      '<p>' + esc(ins.feat.description) + '</p></details>';
+
+    var idx = -1;
+    features.forEach(function (f, i) {
+      var l = featLevel[norm(f.name)];
+      if (l && l <= ins.lvl) idx = i;
+    });
+
+    if (idx >= 0) {
+      // после закрывающего </details> особенности idx
+      var anchor = '<details class="feat' + (changedMap[norm(features[idx].name)] ? ' arch-feat' : '') + '" id="feat-' + idx + '"';
+      var pos = h.indexOf(anchor);
+      if (pos >= 0) pos = h.indexOf('</details>', pos) + '</details>'.length;
+      if (pos >= 0 && pos > 0) {
+        h = h.slice(0, pos) + html + h.slice(pos);
+        return;
+      }
+    }
+    h += html; // fallback: в конец
+  });
+
+  window.__featIds = ids;
+  return h;
+}
+
+function toggleAllFeats(open) {
+  detailEl.querySelectorAll('details.feat').forEach(function (d) { d.open = open; });
+}
+
+// ── Блок выбора архетипа (над таблицей) ───────────────────
+function archetypesBlock(classSlug, title) {
+  var arches = ARCH_BY_CLASS[classSlug];
+  if (!arches || !arches.length) return '';
+  title = title || 'Архетип';
+
+  var options = '<option value="none">— без архетипа —</option>' + arches.map(function (a) {
+    var sel = a.slug === state.arch ? ' selected' : '';
+    return '<option value="' + esc(a.slug) + '"' + sel + '>' + esc(a.nameRu) + '</option>';
+  }).join('');
+
+  var arch = currentArch();
+
+  var h = '<div class="arch-section">' +
+    '<h3>' + esc(title) + ' <span style="color:var(--muted);font-size:13px;font-weight:normal">(' + arches.length + ')</span></h3>' +
+    '<p class="hint">' + (title === 'Подкласс' ? 'Подкласс изменяет классовые особенности.' : 'Архетип изменяет классовые особенности.') + '</p>' +
+    '<select class="arch-select" id="archSelect">' + options + '</select>';
+
+  if (arch && arch.description) {
+    h += '<p class="arch-note">' + esc(arch.description) + '</p>';
+  }
+
+  h += '<div class="legend">' +
+    '<span><span style="color:var(--arch)">■</span> — изменено архетипом</span>' +
+    '<span><span style="color:var(--link)">■</span> — особенность класса</span>' +
+    '</div></div>';
+  return h;
+}
+
+// ── Карточка класса ───────────────────────────────────────
+function renderClass(it) {
+  // Архетипы (21 МБ) грузим только при открытии карточки класса,
+  // не при загрузке сайта и не при просмотре списка
+  if (!window.PF_DATA_archetypes) {
+    ensureData('archetypes', function () {
+      if (state.slug && state.cat === it._cat) renderDetail(); // карточка ещё открыта
+    });
+  }
+  var arch = currentArch();
+
+  var h = '<div class="content' + (it.devilTheme ? ' devil' : '') + '">';
+  h += '<span class="back-link" id="backToList">← к списку</span>';
+  if (it.image) h += '<img class="class-photo" loading="lazy" decoding="async" src="' + esc(it.image) + '" alt="' + esc(it.nameRu) + '">';
+  h += '<h2>' + esc(it.nameRu) + (arch ? ' · ' + esc(arch.nameRu) : '') +
+    '<span class="kind-badge">' +
+    (it._cat === 'classes' ? 'класс' : it._cat === 'prestige' ? 'престиж' : 'NPC') + '</span></h2>';
+  var srcUrl = arch ? arch.originalUrl : it.originalUrl;
+  h += '<div class="en-name">' + esc(it.nameEn || '') +
+    (arch && arch.nameEn ? ' / ' + esc(arch.nameEn) : '') +
+    (it.book ? ' · ' + esc(it.book) : '') +
+    (srcUrl ? ' · <a href="' + esc(srcUrl) + '" target="_blank">источник</a>' : '') + '</div>';
+
+  h += '<dl class="meta">';
+  if (it.role) h += metaRow('Роль', it.role);
+  if (it.alignment) h += metaRow('Мировоззрение', it.alignment);
+  if (it.hitDie) h += metaRow('КЗ', it.hitDie);
+  if (it.startingWealth) h += metaRow('Стартовое богатство', it.startingWealth);
+  if (it.skillRanks) h += metaRow('Навыки за уровень', it.skillRanks);
+  h += '</dl>';
+
+  // Выбор архетипа/подкласса — перед таблицей (и для престижей, если есть)
+  if (ARCH_BY_CLASS[it.slug] && ARCH_BY_CLASS[it.slug].length) {
+    h += archetypesBlock(it.slug, it._cat === 'classes' ? 'Архетип' : 'Подкласс');
+  }
+
+  if (it.classSkills && it.classSkills.length) {
+    h += '<h3>Классовые навыки</h3><div class="chips">' +
+      it.classSkills.map(function (s) { return '<span class="chip">' + esc(s) + '</span>'; }).join('') +
+      '</div>';
+  }
+
+  if (it.requirements && it.requirements.length) {
+    h += '<h3>Требования</h3>';
+    it.requirements.forEach(function (r) {
+      h += '<p class="req"><b>' + esc(r.kind) + ':</b> ' + esc(r.text) + '</p>';
+    });
+  }
+
+  // Уровень каждой особенности класса — из таблицы прогрессии
+  var featLevel = computeFeatLevels(it.features, it.progression);
+
+  // Сначала особенности (заполняют реестр якорей), затем таблица со ссылками
+  var feats = featuresBlock(it.features, arch, featLevel);
+
+  // Индекс: уровень → якоря архетипных способностей этого уровня.
+  // Уровень берём из поля level изменения; если его нет — из уровня
+  // заменяемой особенности в таблице (замена приходит на том же уровне).
+  var archByLvl = {};
+  if (arch && arch.changes) {
+    arch.changes.forEach(function (c) {
+      var lvl = c.level || 0;
+      if (!lvl && c.replaces && c.replaces.length) {
+        c.replaces.forEach(function (r) {
+          var l = featLevel[norm(r)];
+          if (l && (!lvl || l < lvl)) lvl = l;
+        });
+      }
+      if (!lvl) return;
+      var f = null;
+      window.__featIds.forEach(function (x) {
+        if (norm(x.name) === norm(c.name)) f = x;
+      });
+      if (f) (archByLvl[lvl] = archByLvl[lvl] || []).push(f);
+    });
+  }
+
+  var prog = progressionTable(it.progression, it.spellCircles, it.extraHeader, archByLvl);
+  if (prog) h += '<h3>Прогрессия</h3>' + prog;
+
+  if (feats) {
+    h += '<div class="h3-row"><h3>Особенности</h3>' +
+      '<button class="toggle-feats" id="toggleFeats">свернуть всё</button></div>';
+    h += feats;
+  }
+
+  if (it.favoredBonuses && it.favoredBonuses.length) {
+    h += '<h3>Предпочитаемые народы</h3>';
+    it.favoredBonuses.forEach(function (f) {
+      h += '<p class="fav"><b>' + esc(f.race) + ':</b> ' + esc(f.bonus) + '</p>';
+    });
+  }
+
+  return h + '</div>';
+}
+
+// ── Главная страница для новичков ─────────
+function countOf(cat) { return ALL.filter(function (x) { return x._cat === cat; }).length; }
+
+// Счётчик карточки раздела: пока данные не загружены — «…»
+function countSpan(cat, suffix) {
+  var n = countOf(cat);
+  return '<span class="count" data-cat="' + cat + '" data-suffix="' + suffix + '">' +
+    (n > 0 ? n + ' ' + suffix : '…') + '</span>';
+}
+
+// Обновляет счётчики на главной после ленивой загрузки раздела
+function updateHomeCounts() {
+  document.querySelectorAll('.home-card .count[data-cat]').forEach(function (el) {
+    var n = countOf(el.dataset.cat);
+    if (n > 0) el.textContent = n + ' ' + el.dataset.suffix;
+  });
+}
+
+function renderHome() {
+  var h = '<div class="content home">';
+  h += '<div class="hero">' +
+    '<h2>Добро пожаловать в Pathfinder!</h2>' +
+    '<p class="lead">Справочник по настольной ролевой игре Pathfinder 1e — на русском языке.</p>' +
+    '<p>Ничего не знаете о Pathfinder? Это нормально. Выберите раздел ниже или узнайте, с чего начать.</p>' +
+    '<p style="margin-top:16px"><a class="cta" href="#/classes">Выбрать класс</a> ' +
+    '<button class="cta ghost" id="stepsJump">С чего начать ↓</button></p>' +
+    '</div>';
+
+  h += '<div class="home-cards">' +
+    '<a class="home-card" href="#/classes"><span class="ico">⚔️</span><b>Классы</b>' +
+    '<span class="desc">Кто ваш герой: воин, волшебник, жрец… Начните выбор персонажа здесь.</span>' +
+    countSpan('classes', 'классов') + '</a>' +
+    '<a class="home-card" href="#/prestige"><span class="ico">🌟</span><b>Престиж-классы</b>' +
+    '<span class="desc">Продвинутые пути для опытных героев. Пригодятся позже, на высоких уровнях.</span>' +
+    countSpan('prestige', 'шт.') + '</a>' +
+    '<a class="home-card" href="#/npc"><span class="ico">🎭</span><b>NPC-классы</b>' +
+    '<span class="desc">Простые классы для не-игровых персонажей: ремесленники, аристократы, простолюдины.</span>' +
+    countSpan('npc', 'шт.') + '</a>' +
+    '<a class="home-card" href="#/races"><span class="ico">🧝</span><b>Расы</b>' +
+    '<span class="desc">Кем вы родились: человек, эльф, дварф… Народ даёт особенности и отвечает за происхождение героя.</span>' +
+    countSpan('races', 'народов') + '</a>' +
+    '<a class="home-card" href="#/traits"><span class="ico">✨</span><b>Штрихи</b>' +
+    '<span class="desc">Мелкие особенности из прошлого героя. Пара штук — и персонаж живее.</span>' +
+    countSpan('traits', 'шт.') + '</a>' +
+    '<a class="home-card" href="#/skills"><span class="ico">🎯</span><b>Навыки</b>' +
+    '<span class="desc">Что герой умеет: взлом, дипломатия, скрытность. И у каких классов это получается лучше.</span>' +
+    countSpan('skills', 'шт.') + '</a>' +
+    '<a class="home-card" href="#/rules"><span class="ico">📖</span><b>Правила</b>' +
+    '<span class="desc">Основы игры: создание персонажа, бой, перемещение, состояния. Новый в Pathfinder — начните отсюда.</span>' +
+    countSpan('rules', 'статей') + '</a>' +
+    '</div>';
+
+  h += '<h3 id="steps">С чего начать</h3><ol class="steps">' +
+    '<li><b>Поймите идею.</b> Pathfinder — это совместное рассказывание истории: один игрок (мастер) описывает мир и испытания, остальные — действуют от лица своих героев. Побеждает не «выигравший», а получившаяся история.</li>' +
+    '<li><b>Выберите класс.</b> Класс — это профессия героя, он определяет, чем герой силён в бою и вне его. Новичкам проще всего начать с <a href="#/classes/fighter">воина</a> или <a href="#/classes/rogue">плута</a>: у них понятные механики.</li>' +
+    '<li><b>Не бойтесь терминов.</b> В карточках классов встречаются «БМА», «КЗ», «спасброски» — наведите курсор или просто читайте описания особенностей, всё объясняется по ходу.</li>' +
+    '<li><b>Архетипы — потом.</b> Это «надстройки» над классом, меняющие его особенности. Разберитесь с базовым классом, затем попробуйте переключатель архетипа прямо в карточке.</li>' +
+    '</ol>';
+
+  h += '<h3>Частые вопросы</h3>';
+  h += '<details class="feat faq"><summary>Что такое «класс»?</summary><p>Шаблон героя: какие у него боевые бонусы, заклинания и особые умения, и как они растут с уровнями (с 1-го по 20-й). Например, волшебник слаб телом, но метает мощные заклинания, а варвар — сносит всё в ближнем бою.</p></details>';
+  h += '<details class="feat faq"><summary>Нужно ли что-то покупать или устанавливать?</summary><p>Нет. Этот сайт — просто справочник. Для игры нужны друзья, лист бумаги (или виртуальный стол) и правила — мастер обычно знает, что нужно.</p></details>';
+  h += '<details class="feat faq"><summary>Как пользоваться карточкой класса?</summary><p>Сверху — краткие сведения (роль, мировоззрение, кубик здоровья). Дальше — таблица прогрессии: что герой получает на каждом уровне. Каждая особенность — раскрывающаяся карточка с понятным описанием; термины в таблице — ссылки, прыжок прямо к объяснению.</p></details>';
+  h += '<details class="feat faq"><summary>Что значит «престиж-класс»?</summary><p>Особый путь, в который герой вступает не с 1-го уровня, а выполнив требования — например, научившись колдовству или вступив в орден. Смотрите раздел «Престижи», когда освоитесь.</p></details>';
+
+  h += '<p style="text-align:center;margin-top:34px"><a class="cta" href="#/classes">Открыть классы →</a></p>';
+  return h + '</div>';
+}
+
+function renderDetail() {
+  window.__featIds = [];
+  window.__changedMap = {};
+  if (state.cat === 'home') { detailEl.innerHTML = renderHome(); detailEl.scrollTop = 0; return; }
+  if (!loadedCats[state.cat]) {
+    detailEl.innerHTML = '<div class="empty">Загрузка данных…</div>';
+    return;
+  }
+  var it = ALL.filter(function (x) { return x.slug === state.slug && x._cat === state.cat; })[0];
+  if (!it) {
+    detailEl.innerHTML = '<div class="empty">' +
+      (state.cat === 'traits' ? 'Выберите штрих слева' :
+       state.cat === 'skills' ? 'Выберите навык слева' :
+       state.cat === 'races' ? 'Выберите народ слева' :
+       state.cat === 'rules' ? 'Выберите статью правил слева' : 'Выберите класс слева') +
+      '</div>';
+    return;
+  }
+  if (state.cat === 'traits') detailEl.innerHTML = renderTrait(it);
+  else if (state.cat === 'skills') detailEl.innerHTML = renderSkill(it);
+  else if (state.cat === 'races') detailEl.innerHTML = renderRace(it);
+  else if (state.cat === 'rules') detailEl.innerHTML = renderRule(it);
+  else detailEl.innerHTML = renderClass(it);
+  detailEl.scrollTop = 0;
+}
+
+// ── Штрихи характера (traits) ─────────────
+function renderTrait(it) {
+  var h = '<div class="content">';
+  h += '<span class="back-link" id="backToList">← к списку</span>';
+  h += '<h2>' + esc(it.nameRu) + '<span class="kind-badge">штрих</span></h2>';
+  h += '<div class="en-name">' + esc(it.nameEn || '') +
+    (it.book ? ' · ' + esc(it.book) : '') + '</div>';
+
+  h += '<dl class="meta">';
+  if (it.typeName) h += metaRow('Тип', it.typeName + (it.parentTypeName ? ' (' + it.parentTypeName + ')' : ''));
+  if (it.prerequisites) h += metaRow('Требования', it.prerequisites);
+  h += '</dl>';
+
+  if (it.benefit) h += '<h3>Польза</h3><p>' + esc(it.benefit) + '</p>';
+  if (it.typeDescription) {
+    h += '<details class="feat"><summary>Описание типа: ' + esc(it.typeName) + '</summary><p>' +
+      esc(it.typeDescription) + '</p></details>';
+  }
+
+  return h + '</div>';
+}
+
+// ── Навыки (матрица навык×класс) ─────────
+function renderSkill(it) {
+  var h = '<div class="content">';
+  h += '<span class="back-link" id="backToList">← к списку</span>';
+  h += '<h2>' + esc(it.nameRu) + '<span class="kind-badge">навык</span></h2>';
+
+  if (it.classes && it.classes.length) {
+    var classSkills = it.classes.filter(function (c) { return c.isClassSkill; });
+    var other = it.classes.filter(function (c) { return !c.isClassSkill; });
+
+    h += '<h3>Классовый навык <span style="color:var(--muted);font-size:13px;font-weight:normal">(' +
+      classSkills.length + ' из ' + it.classes.length + ' классов)</span></h3>';
+    h += '<div class="chips">' + classSkills.map(function (c) {
+      return '<span class="chip" style="border-color:var(--accent2);color:var(--text)">' + esc(c.name) + '</span>';
+    }).join('') + '</div>';
+
+    if (other.length) {
+      h += '<h3>Неклассовый</h3>';
+      h += '<div class="chips">' + other.map(function (c) {
+        return '<span class="chip">' + esc(c.name) + '</span>';
+      }).join('') + '</div>';
+    }
+  }
+
+  return h + '</div>';
+}
+
+// ── Народы (расы) ─────────────────────────
+// Ключевые параметры из особенностей: бонусы характеристик,
+// размер, скорость — плашками, как на dnd.su.
+function raceQuickFacts(it) {
+  var chips = [];
+  var abilityRe = /([+−-]\d+)\s+([а-яёА-ЯЁ]+)/g;
+  (it.traits || []).forEach(function (t) {
+    // Бонусы могут лежать и в имени особенности («+2 Ловкость, +2 Интеллект…»),
+    // и в описании отдельной особенности «Модификаторы характеристик»
+    var source = abilityRe.test(t.name) ? t.name : (/модификатор/i.test(t.name) ? t.description : '');
+    abilityRe.lastIndex = 0;
+    if (source) {
+      // «+2 к значению одной характеристики» (человек) — особая плашка
+      if (/одной характеристики/i.test(source)) {
+        chips.push({ lbl: 'Характеристики', val: '+2 к любой', ability: true });
+        return;
+      }
+      var m;
+      while ((m = abilityRe.exec(source))) {
+        // отсеиваем предлоги и служебные слова («+2 к …»)
+        if (m[2].length < 3) continue;
+        chips.push({ lbl: 'Характеристики', val: m[1] + ' ' + m[2].toLowerCase(), ability: true });
+      }
+    } else if (/размер/i.test(t.name)) {
+      chips.push({ lbl: 'Размер', val: t.name.replace(/^\s*размер\s*/i, '').trim() || t.name });
+    } else if (/скорость/i.test(t.name)) {
+      chips.push({ lbl: 'Скорость', val: t.name.replace(/^\s*(нормальная|обычная)\s*/i, '').trim() || t.name });
+    }
+  });
+  return chips;
+}
+
+function renderRace(it) {
+  var h = '<div class="content">';
+  h += '<span class="back-link" id="backToList">← к списку</span>';
+  // Место под изображение: если арта нет — стилизованная заглушка
+  if (it.image) {
+    h += '<div class="race-photo"><img loading="lazy" decoding="async" src="' + esc(it.image) + '" alt="' + esc(it.nameRu) + '"></div>';
+  } else {
+    h += '<div class="race-photo" title="Портрет народа">🧝</div>';
+  }
+  h += '<h2>' + esc(it.nameRu) + '<span class="kind-badge">народ</span></h2>';
+  h += '<div class="en-name">' + esc(it.nameEn || '') +
+    (it.book ? ' · ' + esc(it.book) : '') + '</div>';
+
+  var facts = raceQuickFacts(it);
+  if (facts.length) {
+    h += '<div class="quick-facts">' + facts.map(function (f) {
+      return '<span class="qf' + (f.ability ? ' ability' : '') + '">' +
+        '<span class="lbl">' + esc(f.lbl) + '</span>' + esc(f.val) + '</span>';
+    }).join('') + '</div>';
+  }
+
+  if (it.description) h += '<p>' + esc(it.description) + '</p>';
+
+  // Базовые особенности народа — раскрыты; альтернативные — свёрнуты
+  function traitBlocks(list, open) {
+    return list.map(function (t) {
+      var sub = (t.related && t.related.length)
+        ? '<p class="race-trait-related">вместо: ' + t.related.map(esc).join(', ') + '</p>' : '';
+      return '<details class="feat"' + (open ? ' open' : '') + '><summary>' + esc(t.name) + '</summary>' +
+        sub + '<p>' + esc(t.description) + '</p></details>';
+    }).join('');
+  }
+
+  if (it.traits && it.traits.length) {
+    h += '<h3>Особенности народа</h3>' + traitBlocks(it.traits, true);
+  }
+  if (it.altTraits && it.altTraits.length) {
+    h += '<h3>Альтернативные особенности</h3>' + traitBlocks(it.altTraits, false);
+  }
+
+  var lore = [['physicalDescription', 'Внешность'], ['society', 'Общество'],
+    ['relations', 'Отношения'], ['alignmentAndReligion', 'Мировоззрение и религия'],
+    ['adventurers', 'Приключенцы']];
+  var loreHtml = lore.filter(function (p) { return it[p[0]]; }).map(function (p) {
+    return '<details class="feat"><summary>' + p[1] + '</summary><p>' + esc(it[p[0]]) + '</p></details>';
+  }).join('');
+  if (loreHtml) h += '<h3>О народе</h3>' + loreHtml;
+
+  if (it.names && it.names.length) {
+    var male = [], female = [];
+    it.names.forEach(function (n) { (n.isMale ? male : female).push(esc(n.name)); });
+    h += '<h3>Имена</h3>';
+    if (male.length) h += '<p><b>Мужские:</b> ' + male.join(', ') + '</p>';
+    if (female.length) h += '<p><b>Женские:</b> ' + female.join(', ') + '</p>';
+  }
+
+  if (it.favoredClass && it.favoredClass.length) {
+    h += '<h3>Предпочитаемые классы</h3>';
+    it.favoredClass.forEach(function (fc) {
+      var name = fc.alias ? '<a href="#/classes/' + esc(fc.alias) + '">' + esc(fc.name) + '</a>' : esc(fc.name);
+      h += '<details class="feat"><summary>' + name + '</summary><p>' + esc(fc.description) + '</p></details>';
+    });
+  }
+
+  return h + '</div>';
+}
+
+// ── Статьи правил и механик ───────────────
+// Словарь терминов с подсказками (курсор/тап — всплывающее пояснение)
+var GLOSSARY = {
+  'БМА': 'Базовый атаковый бонус — растёт с уровнями класса, применяется к броскам атаки.',
+  'КС': 'Класс сложности — число, которое нужно выбросить на d20, чтобы преодолеть эффект.',
+  'СЛ': 'Сложность спасброска — КС заклинания или способности; цель совершает спасбросок против него.',
+  'КЗ': 'Кубик хитов — кость, определяющая здоровье: на каждом уровне герой получает хиты по ней.',
+  'd20': 'Двадцатигранная кость — основной бросок игры: атака, спасброски, проверки навыков.',
+  'спасбросок': 'Бросок d20 против КС: при успехе эффект ослабляется или отменяется.',
+  'спасброски': 'Бросок d20 против КС: при успехе эффект ослабляется или отменяется.',
+  'испытание': 'Проверка d20 + модификатор против КС (класса сложности) эффекта.',
+  'УС': 'Уровень сложности — см. КС (класс сложности).'
+};
+
+// Перекрёстные ссылки между статьями правил: nameRu → slug.
+// Имена короче 4 символов не линкуем (ложные совпадения).
+function buildRuleLinks() {
+  var map = {};
+  ALL.forEach(function (x) {
+    // текущую статью не линкуем саму на себя
+    if (x._cat === 'rules' && x.slug !== state.slug && x.nameRu && x.nameRu.length >= 4) map[x.nameRu] = x.slug;
+  });
+  return map;
+}
+
+// Термин-токены (для одного прохода по тексту): термины словаря,
+// названия статей правил, кости «2к6». Регистр важен — «СЛ» не поймает «слово».
+function ruleTokens(ruleLinks) {
+  var tokens = Object.keys(GLOSSARY).map(function (t) { return { re: t, type: 'term', tip: GLOSSARY[t] }; });
+  Object.keys(ruleLinks).forEach(function (name) {
+    tokens.push({ re: name, type: 'link', slug: ruleLinks[name] });
+  });
+  tokens.push({ re: '__DICE__', type: 'dice' });
+  // инлайн-формулы: «(СЛ = 10 + 2 за каждый дополнительный час)»
+  tokens.push({ re: '__FORMULA__', type: 'formula',
+    raw: '(?:СЛ|КС|УС)\\s*(?:испытания|проверки|заклинания)?\\s*=\\s*[^.;)\\n]{3,80}' });
+  // длинные термины первыми — «Действия в бою» раньше «Действия»
+  tokens.sort(function (a, b) { return b.re.length - a.re.length; });
+  return tokens;
+}
+
+// Обогащение текста: формулы (СЛ = …), кости, подсказки, ссылки.
+// text уже экранирован esc() — вставленных тегов нет, безопасно.
+function enrichRuleText(text, tokens) {
+  var diceRe = /\d+[dк]\d+(?:\s*[+−-]\s*\d+)*/g;
+  var out = '';
+
+  // Ссылки-маркеры парсера прячем в плейсхолдеры, чтобы терминатор
+  // их не разрезал, и возвращаем готовыми <a> в самом конце
+  var links = [];
+  text = text.replace(/\[\[([^|\]]+)\|([^\]]+)\]\]/g, function (m, href, label) {
+    links.push({ href: href, label: label });
+    return '\x01' + (links.length - 1) + '\x01';
+  });
+
+  text.split('\n').forEach(function (line, idx, arr) {
+    var nl = idx < arr.length - 1 ? '\n' : '';
+    if (!line.trim()) { out += nl; return; }
+
+    // Формула: строка вида «СЛ испытания = 10 + половина уровня…»
+    if (/^(СЛ|КС|УС|Проверка|Испытание|Бонус|Штраф|Расчёт)[^\n=]{0,60}= /.test(line)) {
+      out += '<span class="formula">' + line + '</span>' + nl;
+      return;
+    }
+
+    // Один проход: режем по терминам/костям, оборачиваем совпадения
+    var pattern = tokens.map(function (t) {
+      if (t.type === 'dice') return '\\d+[dк]\\d+(?:\\s*[+−-]\\s*\\d+)*';
+      if (t.type === 'formula') return t.raw;
+      return t.re.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }).join('|');
+    var re = new RegExp('(' + pattern + ')', 'g');
+    var byRe = {};
+    tokens.forEach(function (t) { byRe[t.re] = t; });
+    var diceTok = tokens.filter(function (t) { return t.type === 'dice'; })[0];
+    var formulaTok = tokens.filter(function (t) { return t.type === 'formula'; })[0];
+
+    line.split(re).forEach(function (part) {
+      var tok = byRe[part];
+      if (!tok && diceTok && new RegExp('^' + '\\d+[dк]\\d+(?:\\s*[+−-]\\s*\\d+)*' + '$').test(part)) tok = diceTok;
+      if (!tok && formulaTok && new RegExp('^' + formulaTok.raw + '$').test(part)) tok = formulaTok;
+      if (tok && tok.type === 'term') {
+        out += '<span class="term" tabindex="0" data-tip="' + esc(tok.tip) + '">' + part + '</span>';
+      } else if (tok && tok.type === 'link') {
+        out += '<a class="rule-link" href="#/rules/' + esc(tok.slug) + '">' + part + '</a>';
+      } else if (tok && tok.type === 'dice') {
+        out += '<code class="dice">' + part + '</code>';
+      } else if (tok && tok.type === 'formula') {
+        out += '<span class="formula inline">' + part + '</span>';
+      } else {
+        out += part;
+      }
+    });
+    out += nl;
+  });
+  // Плейсхолдеры → готовые ссылки (термины/кости внутрь ссылок не попадут)
+  out = out.replace(/\x01(\d+)\x01/g, function (m, i) {
+    var l = links[+i];
+    return l ? ruleLinkHtml(l.href, l.label) : '';
+  });
+  return out;
+}
+
+// Маркеры ссылок из парсера ([[/combatStatistics|«Внеочередные атаки»]])
+// → <a>. Внутренние статьи правил — hash-ссылки, остальное —
+// внешний путь pathfinder.family.
+function ruleLinkHtml(href, label) {
+  var target;
+  if (href.charAt(0) === '/') {
+    var slug = href.slice(1).split('/')[0];
+    var known = ALL.some(function (x) { return x._cat === 'rules' && x.slug === slug; });
+    target = known ? '#/rules/' + slug : 'https://pathfinder.family' + href;
+  } else {
+    target = href;
+  }
+  var internal = target.charAt(0) === '#';
+  return '<a class="rule-link" href="' + esc(target) + '"' +
+    (internal ? '' : ' target="_blank"') + '>' + esc(label) + '</a>';
+}
+
+// Таблица правил: заголовки + строки, как таблицы прогрессии классов
+function ruleTableHtml(t) {
+  if (!t || !t.rows || !t.rows.length) return '';
+  var h = '<div class="table-wrap"><table><thead><tr>';
+  (t.headers || []).forEach(function (c) { h += '<th>' + esc(c) + '</th>'; });
+  h += '</tr></thead><tbody>';
+  t.rows.forEach(function (row) {
+    h += '<tr>';
+    row.forEach(function (c) { h += '<td class="left">' + esc(c) + '</td>'; });
+    h += '</tr>';
+  });
+  return h + '</tbody></table></div>';
+}
+
+function renderRule(it) {
+  var tokens = ruleTokens(buildRuleLinks());
+  var h = '<div class="content">';
+  h += '<span class="back-link" id="backToList">← к списку</span>';
+  h += '<h2>' + esc(it.nameRu) + '<span class="kind-badge">правила</span></h2>';
+  if (it.url) {
+    h += '<div class="en-name"><a href="' + esc(it.url) + '" target="_blank">источник</a></div>';
+  }
+  it.sections.forEach(function (s) {
+    var body = enrichRuleText(s.text || '', tokens);
+    var paras = body.split('\n').filter(Boolean).map(function (p) { return '<p>' + p + '</p>'; }).join('');
+    var tables = (s.tables || []).map(ruleTableHtml).join('');
+    if (!s.heading) {
+      // вступление статьи (контент после h1 без подзаголовка)
+      h += '<div class="rule-intro">' + paras + tables + '</div>';
+      return;
+    }
+    h += '<details class="feat" open><summary>' + esc(s.heading) + '</summary>' +
+      paras + tables + '</details>';
+  });
+  return h + '</div>';
+}
+
+// ── Складная панель навигации ─────────────
+var headerEl = document.querySelector('header');
+var menuBtn = document.getElementById('menuBtn');
+
+function closeMenu() {
+  headerEl.classList.remove('menu-open');
+  menuBtn.setAttribute('aria-expanded', 'false');
+  menuBtn.textContent = '☰';
+}
+menuBtn.addEventListener('click', function () {
+  var open = headerEl.classList.toggle('menu-open');
+  menuBtn.setAttribute('aria-expanded', String(open));
+  menuBtn.textContent = open ? '✕' : '☰';
+});
+
+// ── События ───────────────────────────────────────────────
+
+document.querySelectorAll('nav button').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    state.cat = btn.dataset.cat;
+    state.slug = null;
+    state.arch = 'none';
+    closeMenu();
+    // Мобильная версия: показываем список, а не открытую карточку
+    mainEl.classList.remove('show-detail');
+    updateHash();
+  });
+});
+
+searchEl.addEventListener('input', function () {
+  state.query = searchEl.value;
+  renderList();
+});
+
+listEl.addEventListener('click', function (e) {
+  var item = e.target.closest('.item, .card');
+  if (!item) return;
+  state.slug = item.dataset.slug;
+  state.arch = 'none';
+  closeMenu();
+  if (isMobile()) mainEl.classList.add('show-detail');
+  updateHash();
+});
+
+// Смена архетипа — перерисовать карточку (таблица и особенности зависят от него)
+detailEl.addEventListener('change', function (e) {
+  if (e.target.id !== 'archSelect') return;
+  state.arch = e.target.value;
+  updateHash(); // hashchange перерисует карточку с выбранным архетипом
+});
+
+detailEl.addEventListener('click', function (e) {
+  // Подсказки-термины: тап открывает/закрывает всплывающее пояснение
+  // (hover на мобильном нет). Одна открытая за раз.
+  var term = e.target.closest('.term');
+  if (term) {
+    var wasOpen = term.classList.contains('term-open');
+    detailEl.querySelectorAll('.term.term-open').forEach(function (t) { t.classList.remove('term-open'); });
+    if (!wasOpen) term.classList.add('term-open');
+    return;
+  }
+  if (e.target.closest('#stepsJump')) {
+    document.getElementById('steps').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+  if (e.target.closest('#backToList')) {
+    mainEl.classList.remove('show-detail');
+    return;
+  }
+  // Подсветка строки таблицы прогрессии: видно, на каком уровне
+  // сколько заклинаний/БМА, при прокрутке
+  var row = e.target.closest('.table-wrap tbody tr');
+  if (row && !e.target.closest('a')) {
+    var wasHl = row.classList.contains('row-hl');
+    detailEl.querySelectorAll('tr.row-hl').forEach(function (r) { r.classList.remove('row-hl'); });
+    if (!wasHl) row.classList.add('row-hl');
+    return;
+  }
+
+  var toggle = e.target.closest('#toggleFeats');
+  if (toggle) {
+    var anyOpen = detailEl.querySelector('details.feat[open]');
+    toggleAllFeats(!anyOpen);
+    toggle.textContent = anyOpen ? 'развернуть всё' : 'свернуть всё';
+    return;
+  }
+
+  // Переключатель дробных бонусов — показывает суффиксы «,75» во всех
+  // таблицах карточки, как на pathfinder.family
+  var fracBtn = e.target.closest('.frac-toggle');
+  if (fracBtn) {
+    var show = true;
+    detailEl.querySelectorAll('.table-wrap.show-frac').forEach(function (w) {
+      show = false;
+    });
+    detailEl.querySelectorAll('.table-wrap').forEach(function (w) {
+      if (w.querySelector('.frac')) w.classList.toggle('show-frac', show);
+    });
+    detailEl.querySelectorAll('.frac-toggle').forEach(function (b) {
+      b.textContent = show ? 'скрыть дробные бонусы' : 'показать дробные бонусы';
+    });
+  }
+  // Якорные ссылки из таблицы: плавный скролл внутри #detail
+  var link = e.target.closest('a.feat-link');
+  if (link) {
+    e.preventDefault();
+    var target = document.getElementById(link.getAttribute('href').slice(1));
+    if (target) {
+      target.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      target.open = true;
+      // Краткая подсветка
+      target.style.transition = 'box-shadow 0.3s';
+      target.style.boxShadow = '0 0 0 3px var(--accent-soft)';
+      setTimeout(function () { target.style.boxShadow = ''; }, 1200);
+    }
+  }
+});
+
+applyHash();
+</script>
+</body>
+</html>
