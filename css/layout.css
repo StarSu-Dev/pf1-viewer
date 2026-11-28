@@ -1,0 +1,37 @@
+/* ── Основная область ───────────────────── */
+main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+#list {
+  width: 300px;
+  min-width: 220px;
+  overflow-y: auto;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+}
+#list .item {
+  padding: 10px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  border-left: 3px solid transparent;
+  transition: 0.12s;
+}
+#list .item:hover {
+  background: var(--panel2);
+}
+#list .item.active {
+  background: var(--accent-soft);
+  border-left-color: var(--accent);
+}
+#list .item .en {
+  color: var(--muted);
+  font-size: 12px;
+  font-style: italic;
+  white-space: nowrap;
+}

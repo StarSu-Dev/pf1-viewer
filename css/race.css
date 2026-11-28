@@ -1,0 +1,75 @@
+/* ── Карточка расы: фото/заглушка + ключевые параметры ── */
+.race-photo {
+  float: right;
+  width: 180px;
+  height: 200px;
+  max-width: 40%;
+  margin: 4px 0 12px 18px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  background: linear-gradient(150deg, var(--panel2), var(--accent-soft));
+  color: var(--muted);
+  overflow: hidden;
+}
+.race-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.quick-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 6px 0 18px;
+}
+.quick-facts .qf {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 14px;
+  color: var(--text);
+}
+.quick-facts .qf.ability {
+  color: var(--accent);
+  border-color: var(--accent2);
+  background: var(--accent-soft);
+  font-weight: 600;
+}
+.quick-facts .qf .lbl {
+  color: var(--muted);
+  font-size: 12px;
+  margin-right: 6px;
+}
+.quick-facts .qf.ability .lbl {
+  color: var(--accent);
+  opacity: 0.75;
+}
+.back-link {
+  display: none;
+  margin-bottom: 12px;
+  cursor: pointer;
+  color: var(--link);
+  font-size: 15px;
+  font-weight: 500;
+}
+.empty {
+  color: var(--muted);
+  font-style: italic;
+  padding: 40px;
+  text-align: center;
+}
+a {
+  color: var(--link);
+}
+
+/* Предпочитаемый класс: несколько альтернативных бонусов через разделитель */
+details.feat.favored > p + p {
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+}

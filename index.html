@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#12161f" />
+    <title>Pathfinder — справочник на русском</title>
+    <link rel="stylesheet" href="css/base.css" />
+    <link rel="stylesheet" href="css/header.css" />
+    <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/cards.css" />
+    <link rel="stylesheet" href="css/tables.css" />
+    <link rel="stylesheet" href="css/custom-classes.css" />
+    <link rel="stylesheet" href="css/sealed.css" />
+    <link rel="stylesheet" href="css/class-card.css" />
+    <link rel="stylesheet" href="css/archetype.css" />
+    <link rel="stylesheet" href="css/rules.css" />
+    <link rel="stylesheet" href="css/race.css" />
+    <link rel="stylesheet" href="css/home.css" />
+    <link rel="stylesheet" href="css/mobile.css" />
+  </head>
+  <body>
+    <header>
+      <a class="logo" href="#/">Pathfinder</a>
+      <button id="menuBtn" aria-label="Меню" aria-expanded="false">☰</button>
+      <div id="headerPanel">
+        <nav>
+          <button data-cat="home">Главная</button>
+          <button data-cat="classes" class="active">Классы</button>
+          <button data-cat="prestige">Престижи</button>
+          <button data-cat="npc">NPC</button>
+          <button data-cat="races">Расы</button>
+          <button data-cat="traits">Штрихи</button>
+          <button data-cat="skills">Навыки</button>
+          <button data-cat="rules">Правила</button>
+        </nav>
+        <input id="search" type="search" placeholder="Поиск по названию…" />
+      </div>
+    </header>
+    <main id="main">
+      <div id="list"></div>
+      <div id="detail"><div class="empty">Выберите класс слева</div></div>
+    </main>
+    <div id="ruleTip"></div>
+
+    <!-- Порядок важен: общие вещи → загрузка данных → роутер → экраны → события -->
+    <script src="js/runtime.js"></script>
+    <script src="js/core.js"></script>
+    <script src="js/data-loader.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/list.js"></script>
+    <script src="js/class-card.js"></script>
+    <script src="js/pages.js"></script>
+    <script src="js/trait-skill.js"></script>
+    <script src="js/race.js"></script>
+    <script src="js/rules.js"></script>
+    <script src="js/events.js"></script>
+    <script src="js/sealed.js"></script>
+  </body>
+</html>

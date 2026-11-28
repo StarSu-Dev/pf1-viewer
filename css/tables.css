@@ -1,0 +1,88 @@
+/* ── Таблицы ────────────────────────────── */
+.table-wrap {
+  overflow-x: auto;
+  margin: 8px 0;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 14px;
+}
+th,
+td {
+  border-bottom: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+  padding: 6px 10px;
+  text-align: center;
+}
+th:last-child,
+td:last-child {
+  border-right: none;
+}
+tr:last-child td {
+  border-bottom: none;
+}
+th {
+  background: var(--panel2);
+  color: var(--accent);
+  font-weight: 600;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+}
+td.left {
+  text-align: left;
+}
+td.spell-col {
+  min-width: 34px;
+  padding: 6px 6px;
+  color: var(--body);
+}
+td.spell-col.zero {
+  color: var(--muted);
+  opacity: 0.55;
+}
+thead .group {
+  border-bottom: none;
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 12px;
+}
+thead .circle {
+  border-top: none;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+tbody tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Столбец уровня всегда на виду при горизонтальном скролле */
+.table-wrap th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: var(--panel2);
+}
+.table-wrap tbody td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--panel);
+  font-weight: 600;
+  color: var(--text);
+}
+.table-wrap tbody tr:nth-child(even) td:first-child {
+  background: #202937;
+}
+
+/* Подсветка выбранной строки (уровень + модификаторы при скролле) */
+.table-wrap tbody tr.row-hl td {
+  background: rgba(139, 124, 246, 0.16);
+}
+.table-wrap tbody tr.row-hl td:first-child {
+  background: rgba(139, 124, 246, 0.22);
+  color: var(--accent);
+}

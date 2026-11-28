@@ -1,0 +1,39 @@
+/* Класс «Дьявол»: контрастная оранжевая тема карточки */
+.content.devil {
+  --accent: #ff7a18;
+  --accent-soft: rgba(255, 122, 24, 0.14);
+  --accent2: #b35708;
+  --link: #ffb066;
+}
+.content.devil .table-wrap tbody tr.row-hl td {
+  background: rgba(255, 122, 24, 0.16);
+}
+.content.devil .table-wrap tbody tr.row-hl td:first-child {
+  background: rgba(255, 122, 24, 0.22);
+}
+.content.devil .class-photo {
+  border-color: var(--accent2);
+  box-shadow:
+    0 0 0 2px var(--accent-soft),
+    var(--shadow);
+}
+
+/* Класс «Лич»: контрастная зелёная тема карточки */
+.content.lich {
+  --accent: #7ee08a;
+  --accent-soft: rgba(126, 224, 138, 0.14);
+  --accent2: #3f9e5a;
+  --link: #a8efb1;
+}
+.content.lich .table-wrap tbody tr.row-hl td {
+  background: rgba(126, 224, 138, 0.16);
+}
+.content.lich .table-wrap tbody tr.row-hl td:first-child {
+  background: rgba(126, 224, 138, 0.22);
+}
+.content.lich .class-photo {
+  border-color: var(--accent2);
+  box-shadow:
+    0 0 0 2px var(--accent-soft),
+    var(--shadow);
+}

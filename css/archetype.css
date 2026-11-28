@@ -1,0 +1,85 @@
+/* ── Блок выбора архетипа ───────────────── */
+.arch-section {
+  background: linear-gradient(160deg, var(--panel), var(--panel2));
+  border: 1px solid var(--accent2);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin: 22px 0;
+  box-shadow: var(--shadow);
+}
+.arch-section h3 {
+  margin: 0 0 4px;
+}
+.arch-section .hint {
+  color: var(--muted);
+  font-size: 13.5px;
+  margin: 0 0 12px;
+}
+.arch-select {
+  width: 100%;
+  max-width: 460px;
+  font: inherit;
+  font-size: 16px;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--accent2);
+  border-radius: 8px;
+  padding: 9px 12px;
+  outline: none;
+  cursor: pointer;
+}
+.arch-select:focus {
+  border-color: var(--accent);
+}
+.arch-note {
+  border-left: 3px solid var(--accent);
+  padding: 8px 14px;
+  margin: 10px 0;
+  color: var(--body);
+  background: var(--accent-soft);
+  border-radius: 0 8px 8px 0;
+}
+.legend {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--muted);
+  flex-wrap: wrap;
+}
+.legend .arch-chip {
+  color: var(--arch);
+}
+
+.toggle-feats {
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--muted);
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  padding: 3px 12px;
+  transition: 0.15s;
+}
+.toggle-feats:hover {
+  color: var(--text);
+  background: var(--panel);
+}
+
+.req b,
+.fav b {
+  color: var(--accent);
+  font-weight: 600;
+}
+.req,
+.fav {
+  margin: 6px 0;
+}
+.race-trait-related {
+  color: var(--muted);
+  font-size: 13px;
+  font-style: italic;
+  margin: 0 16px;
+  padding: 0;
+}

@@ -1,0 +1,147 @@
+/* ── Чтение правил: формулы, термины, перекрёстные ссылки ── */
+.formula {
+  display: block;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 14px;
+  white-space: pre-wrap;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 8px 8px 0;
+  padding: 10px 14px;
+  margin: 10px 0;
+  color: var(--text);
+}
+.formula.inline {
+  display: inline;
+  padding: 1px 7px;
+  margin: 0;
+  white-space: normal;
+  border: 1px solid var(--accent2);
+  border-radius: 6px;
+  background: var(--accent-soft);
+  font-size: 13.5px;
+}
+code.dice {
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 14px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 1px 6px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.term {
+  color: var(--link);
+  cursor: help;
+  position: relative;
+  border-bottom: 1px dotted var(--link);
+  text-decoration: none;
+}
+.term-active {
+  color: var(--accent);
+}
+/* Один на страницу тултип, позиционируется JS с зажимом в экран */
+#ruleTip {
+  display: none;
+  position: fixed;
+  z-index: 50;
+  max-width: min(320px, calc(100vw - 16px));
+  background: var(--panel2);
+  border: 1px solid var(--accent2);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  color: var(--text);
+  font-size: 13px;
+  padding: 8px 12px;
+  line-height: 1.45;
+  pointer-events: none;
+}
+.rule details.feat {
+  scroll-margin-top: 56px;
+}
+.rule details.feat.sec-hl {
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.rule-tools {
+  position: sticky;
+  top: 0;
+  z-index: 8;
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 0;
+  margin-bottom: 6px;
+  background: transparent;
+}
+
+/* ── Навигация по статье правил: оглавление + липкая строка разделов ── */
+.rule-toc {
+  margin: 0 0 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.rule-toc > summary {
+  cursor: pointer;
+  padding: 10px 16px;
+  font-weight: 600;
+  color: var(--accent);
+  list-style: none;
+}
+.rule-toc > summary::-webkit-details-marker {
+  display: none;
+}
+.rule-toc > summary::before {
+  content: "▾";
+  color: var(--muted);
+  font-size: 12px;
+  margin-right: 8px;
+  display: inline-block;
+  transition: 0.15s;
+}
+.rule-toc:not([open]) > summary::before {
+  transform: rotate(-90deg);
+}
+.toc-count {
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 13px;
+  margin-left: 6px;
+}
+.toc {
+  list-style: none;
+  padding: 0 16px 12px 34px;
+  columns: 2;
+  column-gap: 28px;
+}
+.toc li {
+  break-inside: avoid;
+  padding: 3px 0;
+  font-size: 14.5px;
+}
+.toc li.lvl3 {
+  padding-left: 14px;
+  font-size: 13.5px;
+}
+.toc a {
+  color: var(--body);
+  text-decoration: none;
+  border-bottom: 1px dotted transparent;
+}
+.toc a:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+a.rule-link {
+  color: var(--link);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--link);
+}
+a.rule-link:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+.rule-intro p {
+  font-size: 16.5px;
+}

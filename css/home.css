@@ -1,0 +1,148 @@
+/* ── Главная страница ───────────────────── */
+main.home-view #list {
+  display: none;
+}
+.home {
+  max-width: 860px;
+  margin: 0 auto;
+  padding-bottom: 60px;
+}
+.home .hero {
+  text-align: center;
+  padding: 40px 24px 34px;
+  margin-top: 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background:
+    radial-gradient(
+      600px 240px at 50% -40px,
+      var(--accent-soft),
+      transparent 70%
+    ),
+    linear-gradient(160deg, var(--panel), var(--panel2));
+}
+.home .hero h2 {
+  font-size: 34px;
+  margin-bottom: 10px;
+}
+.home .hero p {
+  color: var(--body);
+  max-width: 56ch;
+  margin: 0 auto;
+}
+.home .hero .lead {
+  font-size: 18px;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.home-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 14px;
+  margin: 26px 0;
+}
+.home-card {
+  display: block;
+  text-decoration: none;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 18px 14px;
+  transition: 0.15s;
+}
+.home-card:hover {
+  border-color: var(--accent);
+  background: var(--panel2);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.home-card .ico {
+  font-size: 28px;
+  display: block;
+  margin-bottom: 8px;
+}
+.home-card b {
+  display: block;
+  font-size: 17px;
+  margin-bottom: 4px;
+}
+.home-card span.desc {
+  color: var(--muted);
+  font-size: 14px;
+}
+.home-card .count {
+  color: var(--accent);
+  font-size: 13px;
+  margin-top: 8px;
+  display: block;
+}
+.home h3 {
+  margin-top: 30px;
+}
+.home .steps {
+  list-style: none;
+  counter-reset: step;
+}
+.home .steps li {
+  counter-increment: step;
+  position: relative;
+  padding: 10px 0 10px 46px;
+  color: var(--body);
+  border-bottom: 1px solid var(--line);
+}
+.home .steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.home details.faq {
+  margin: 8px 0;
+}
+.home details.faq summary {
+  cursor: pointer;
+  padding: 10px 16px;
+  color: var(--text);
+  font-weight: 500;
+}
+.home details.faq p {
+  padding: 0 16px 12px;
+}
+.home .cta {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 10px 22px;
+  border-radius: 24px;
+  background: var(--accent2);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
+.home .cta:hover {
+  background: var(--accent);
+}
+.home .cta.ghost {
+  background: transparent;
+  color: var(--link);
+  border: 1px solid var(--accent2);
+  font-weight: 500;
+}
+.home .cta.ghost:hover {
+  background: var(--accent-soft);
+}
+#stepsJump {
+  margin-left: 8px;
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}

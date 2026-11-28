@@ -1,0 +1,172 @@
+/* ── Планшет: список уже, чтобы карточке оставалось место ── */
+@media (max-width: 1000px) {
+  #list {
+    width: 240px;
+  }
+}
+
+/* ── Мобильная версия ───────────────────── */
+@media (max-width: 760px) {
+  header {
+    padding: 8px 10px;
+    gap: 8px;
+    position: relative;
+  }
+  .logo {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  #menuBtn {
+    display: block;
+    margin-left: auto;
+  } /* кнопка справа */
+  /* Панель навигации складная: скрыта, открывается кнопкой ☰ */
+  #headerPanel {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--line);
+    box-shadow: var(--shadow);
+    z-index: 10;
+  }
+  header.menu-open #headerPanel {
+    display: flex;
+  }
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  nav button {
+    font-size: 14px;
+    padding: 8px 12px;
+    background: var(--panel2);
+    border-radius: 8px;
+  }
+  #search {
+    max-width: none;
+    width: 100%;
+    padding: 8px 12px;
+    font-size: 15px;
+  }
+  main {
+    position: relative;
+  }
+  .race-photo {
+    float: none;
+    width: 140px;
+    height: 160px;
+    margin: 6px auto 14px;
+  }
+  .quick-facts .qf {
+    font-size: 13px;
+    padding: 5px 11px;
+  }
+  .toc {
+    columns: 1;
+    padding-left: 16px;
+  }
+  #list {
+    width: 100%;
+    border-right: none;
+  }
+  #detail {
+    position: absolute;
+    inset: 0;
+    padding: 16px 14px 40px;
+    background: var(--bg);
+    display: none;
+  }
+  main.show-detail #list {
+    display: none;
+  }
+  main.show-detail #detail {
+    display: block;
+  }
+  .back-link {
+    display: inline-block;
+  }
+  #detail .content {
+    max-width: none;
+  }
+  h2 {
+    font-size: 22px;
+  }
+  .meta {
+    grid-template-columns: 1fr;
+    gap: 2px;
+    padding: 12px 14px;
+  }
+  .meta dt {
+    margin-top: 8px;
+  }
+  .meta dt:first-child {
+    margin-top: 0;
+  }
+  .arch-section {
+    padding: 12px 14px;
+  }
+
+  /* Главная на мобильном: список скрыт, карточку ничто не перекрывает */
+  main.home-view #detail {
+    display: block;
+    position: static;
+  }
+  .home .hero {
+    padding: 22px 14px 18px;
+  }
+  .home .hero h2 {
+    font-size: 25px;
+  }
+  .home .hero .lead {
+    font-size: 16px;
+  }
+  .home .hero p {
+    font-size: 15px;
+  }
+  .home-cards {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 18px 0;
+  }
+  .home-card {
+    padding: 14px 12px 12px;
+  }
+  .home-card .ico {
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+  .home-card b {
+    font-size: 15px;
+  }
+  .home-card span.desc {
+    font-size: 12.5px;
+  }
+  .home-card .count {
+    font-size: 12px;
+    margin-top: 6px;
+  }
+  .home .steps li {
+    padding: 8px 0 8px 42px;
+    font-size: 15px;
+  }
+  .home .cta {
+    display: block;
+    text-align: center;
+    padding: 12px;
+  }
+}
+
+/* Узкий телефон: карточки главной в одну колонку */
+@media (max-width: 380px) {
+  .home-cards {
+    grid-template-columns: 1fr;
+  }
+}

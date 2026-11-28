@@ -1,0 +1,83 @@
+/* ── Шапка ─────────────────────────────── */
+header {
+  padding: 10px 20px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  box-shadow: var(--shadow);
+  z-index: 5;
+}
+.logo {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+#menuBtn {
+  display: none;
+  font-size: 20px;
+  line-height: 1;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+#headerPanel {
+  display: flex;
+  flex: 1;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+nav {
+  display: flex;
+  gap: 4px;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 3px;
+}
+nav button {
+  font: inherit;
+  font-size: 14px;
+  padding: 6px 14px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  border-radius: 6px;
+  transition: 0.15s;
+}
+nav button.active {
+  background: var(--accent2);
+  color: #fff;
+}
+nav button:not(.active):hover {
+  color: var(--text);
+}
+#search {
+  flex: 1;
+  min-width: 150px;
+  max-width: 360px;
+  margin-left: auto;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 16px;
+  color: var(--text);
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+#search:focus {
+  border-color: var(--accent);
+}
+#search::placeholder {
+  color: var(--muted);
+}
